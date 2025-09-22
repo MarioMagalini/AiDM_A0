@@ -37,16 +37,43 @@ def similarity_matrix(matrix, k=5, axis=0):
     faster computation.
     """
     similarity_dict= {}
+    
     # TO DO: Handle the absence of ratings (missing values in the matrix)
-
+    data=np.array(matrix)
+    nan_mask=np.isnan(data) #in this way we can look at the mask to check if we can compute the similarity
 
     # TO DO: If axis is 1, what do you need to do to calculate the similarity 
     # between items (columns)
     if axis==1:
-        pass
+        data=data.T
 
     # TO DO: loop through each couple of entities to calculate their cosine 
     # similarity and store these results
+    sim_matrix=np.empty([data.shape[0], data.shape[0]])   #initialize a matrix of similarity between users
+    
+    for (i,j) in np.ndindex(sim_matrix.shape):                 
+        if i==j:                                               #nan value on the diagonal
+            sim_matrix[i,j]=np.nan
+        else:
+            A,B=[], []                               #initialize vector that collect values only when both user rate something
+            for k in range(data.shape[1]):          
+                if not nan_mask[i,k] and not nan_mask[j,k]:   #check both user rated the same item
+                    A.append(data[i,k])
+                    B.append(data[j,k])
+            
+            #####   Now we compute cosine similarity
+            if A and B:
+                A,B=np.array(A),np.array(B)
+                coord=np.dot(A,B)
+                norm_A=np.linalg.norm(A)
+                norm_B=np.linalg.norm(B)
+            
+                if norm_A!=0 and norm_B!=0:
+                    cosine=coord/(norm_A*norm_B)
+                else:
+                    cosine=0
+            sim_matrix[i,j]=cosine
+
 
 
     # TO DO: sort the similarity scores for each entity and add the top k most 

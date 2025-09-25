@@ -58,9 +58,7 @@ def similarity_matrix(matrix, k=5, axis=0):
 
     for (i,j) in tqdm(np.ndindex(sim_matrix.shape), total=sim_matrix.size):       #computate similarity matrix          
         if i==j:                                               #nan value on the diagonal
-            sim_matrix[i,j]=np.nan
-        elif(i>j):
-            pass
+            sim_matrix[i,j]=0
         else:
             A,B=[], []                               #initialize vector that collect values only when both user rate something
             A_big, B_big=[],[]                         #initialize vector that collect all the rating of the user (to normalize later)
@@ -78,13 +76,11 @@ def similarity_matrix(matrix, k=5, axis=0):
             if A and B:
                 A,B=np.array(A),np.array(B)
                 coord=np.dot(A,B)
-                norm_A=np.linalg.norm(A)
-                norm_B=np.linalg.norm(B)
+                norm_A=np.linalg.norm(A_big)
+                norm_B=np.linalg.norm(B_big)
             
                 if norm_A!=0 and norm_B!=0:
                     cosine=coord/(norm_A*norm_B)
-                else:
-                    cosine=0
             sim_matrix[i,j]=cosine
             sim_matrix[j,i]=cosine
 

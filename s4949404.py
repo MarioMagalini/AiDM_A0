@@ -4,6 +4,7 @@ from sklearn.model_selection import KFold
 import pandas as pd
 import numpy as np
 import random
+from tqdm import tqdm
 
 # 1. COSINE SIMILARITY:
 def similarity_matrix(matrix, k=5, axis=0):
@@ -49,11 +50,15 @@ def similarity_matrix(matrix, k=5, axis=0):
 
     # TO DO: loop through each couple of entities to calculate their cosine 
     # similarity and store these results
-    sim_matrix=np.empty([data.shape[0], data.shape[0]])   #initialize a matrix of similarity between users
+    print("Computing the similarity matrix")
     
-    for (i,j) in np.ndindex(sim_matrix.shape):                 
+    sim_matrix=np.empty([data.shape[0], data.shape[0]])   #initialize a matrix of similarity between users
+
+    for (i,j) in tqdm(np.ndindex(sim_matrix.shape), total=sim_matrix.size):                 
         if i==j:                                               #nan value on the diagonal
-            sim_matrix[i,j]=np.nan
+            sim_matrix[i,j]=0
+        elif(i>j):
+            pass
         else:
             A,B=[], []                               #initialize vector that collect values only when both user rate something
             for k in range(data.shape[1]):          
@@ -73,12 +78,28 @@ def similarity_matrix(matrix, k=5, axis=0):
                 else:
                     cosine=0
             sim_matrix[i,j]=cosine
+            sim_matrix[j,i]=cosine
 
 
 
     # TO DO: sort the similarity scores for each entity and add the top k most 
     # similar entities to the similarity_dict
 
+    for user, similarity in enumerate(sim_matrix):   #confusion with indices
+
+        mask=np.isnan(similarity)
+        valid_index=np.where(mask == False)[0]
+        valid_row=similarity[valid_index]
+
+        value_dict=[]
+        user_sorted=[]
+        user_sorted=np.argsort(valid_row)[::-1]
+        for idx, image in enumerate(user_sorted):
+            if not np.isnan(image):    
+                value_dict.append((user_sorted[idx],valid_row[user_sorted[idx]]))
+            if enumerate(value_dict)==k:
+                break
+        similarity_dict[user].append(value_dict)
 
     return similarity_dict
 

@@ -42,11 +42,13 @@ def similarity_matrix(matrix, k=5, axis=0):
     # TO DO: Handle the absence of ratings (missing values in the matrix)
     data=np.array(matrix)
     nan_mask=np.isnan(data) #in this way we can look at the mask to check if we can compute the similarity
+    
 
     # TO DO: If axis is 1, what do you need to do to calculate the similarity 
     # between items (columns)
     if axis==1:
         data=data.T
+        nan_mask=nan_mask.T
 
     # TO DO: loop through each couple of entities to calculate their cosine 
     # similarity and store these results
@@ -54,19 +56,25 @@ def similarity_matrix(matrix, k=5, axis=0):
     
     sim_matrix=np.empty([data.shape[0], data.shape[0]])   #initialize a matrix of similarity between users
 
-    for (i,j) in tqdm(np.ndindex(sim_matrix.shape), total=sim_matrix.size):                 
+    for (i,j) in tqdm(np.ndindex(sim_matrix.shape), total=sim_matrix.size):       #computate similarity matrix          
         if i==j:                                               #nan value on the diagonal
-            sim_matrix[i,j]=0
+            sim_matrix[i,j]=np.nan
         elif(i>j):
             pass
         else:
             A,B=[], []                               #initialize vector that collect values only when both user rate something
-            for k in range(data.shape[1]):          
-                if not nan_mask[i,k] and not nan_mask[j,k]:   #check both user rated the same item
-                    A.append(data[i,k])
-                    B.append(data[j,k])
+            A_big, B_big=[],[]                         #initialize vector that collect all the rating of the user (to normalize later)
+            for l in range(data.shape[1]):          
+                if not nan_mask[i,l] and not nan_mask[j,l]:   #check both user rated the same item
+                    A.append(data[i,l])
+                    B.append(data[j,l])
+                if not nan_mask[i,l]:
+                    A_big.append(data[i,l])
+                if not nan_mask[j,l]:
+                    B_big.append(data[j,l])
             
             #####   Now we compute cosine similarity
+            cosine=0
             if A and B:
                 A,B=np.array(A),np.array(B)
                 coord=np.dot(A,B)
@@ -80,26 +88,30 @@ def similarity_matrix(matrix, k=5, axis=0):
             sim_matrix[i,j]=cosine
             sim_matrix[j,i]=cosine
 
+    print(f"First 5 rows and column of the similarity matrix:")
+    print(sim_matrix[:5,:5])
 
 
     # TO DO: sort the similarity scores for each entity and add the top k most 
     # similar entities to the similarity_dict
 
+    similarity_dict={i:[] for i in range(len(sim_matrix))}
+
     for user, similarity in enumerate(sim_matrix):   #confusion with indices
+        similarity_mask=[]
+        ntuple=[]
+        
+        similarity_mask = np.logical_not(np.isnan(similarity))
+        orderer=np.argsort(similarity)[::-1]
+        
+        for idx in orderer:
+            if similarity_mask[idx] and len(ntuple) < k:
+                ntuple.append((int(idx),float(similarity[idx])))
 
-        mask=np.isnan(similarity)
-        valid_index=np.where(mask == False)[0]
-        valid_row=similarity[valid_index]
+        similarity_dict[user] = ntuple
 
-        value_dict=[]
-        user_sorted=[]
-        user_sorted=np.argsort(valid_row)[::-1]
-        for idx, image in enumerate(user_sorted):
-            if not np.isnan(image):    
-                value_dict.append((user_sorted[idx],valid_row[user_sorted[idx]]))
-            if enumerate(value_dict)==k:
-                break
-        similarity_dict[user].append(value_dict)
+    print("For user 0 we got:")
+    print(similarity_dict[0])
 
     return similarity_dict
 
@@ -213,6 +225,21 @@ def matrix_factorization(
         pass
 
     return user_matrix, item_matrix
+
+
+M = np.array([
+    [2., 2., np.nan, 1., 4., 1., 3., 4., 5., 3.],
+    [np.nan, 3., 5., 3., np.nan, 5., 5., 4., 4., 2.],
+    [5., 1., 2., 2., 1., 1., 1., 3., 2., 3.],
+    [5., 5., 2., 4., 5., 4., 3., 3., 2., 4.],
+    [1., 3., 5., 5., 4., np.nan, 5., np.nan, 5., 4.],
+    [5., np.nan, 2., 1., 3., 3., 1., 4., 4., 3.],
+    [3., 5., 5., np.nan, 2., 4., 4., np.nan, 4., 5.],
+    [4., 1., 3., 3., 2., 1., 1., 5., 1., np.nan],
+    [3., 1., 4., 4., 4., 2., 3., 5., 3., np.nan],
+    [5., 3., 3., 4., 2., 4., 2., 2., 3., 4.]
+])
+
 
 if __name__ == "__main__":
     path = "u.data"       

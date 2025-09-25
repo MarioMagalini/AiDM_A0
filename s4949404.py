@@ -59,7 +59,7 @@ def similarity_matrix(matrix, k=5, axis=0):
     for (i,j) in tqdm(np.ndindex(sim_matrix.shape), total=sim_matrix.size):       #computate similarity matrix          
         if i==j:                                               #nan value on the diagonal
             sim_matrix[i,j]=0
-        else:
+        elif i<j:
             A,B=[], []                               #initialize vector that collect values only when both user rate something
             A_big, B_big=[],[]                         #initialize vector that collect all the rating of the user (to normalize later)
             for l in range(data.shape[1]):          
@@ -93,7 +93,7 @@ def similarity_matrix(matrix, k=5, axis=0):
 
     similarity_dict={i:[] for i in range(len(sim_matrix))}
 
-    for user, similarity in enumerate(sim_matrix):   #confusion with indices
+    for user, similarity in enumerate(sim_matrix):  
         similarity_mask=[]
         ntuple=[]
         

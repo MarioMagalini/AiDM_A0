@@ -6,6 +6,11 @@ import numpy as np
 import random
 from tqdm import tqdm
 
+#SWITCHES
+CF_user_user_text=1
+CF_item_item_text=1
+
+
 # 1. COSINE SIMILARITY:
 def similarity_matrix(matrix, k=5, axis=0):
     """
@@ -85,9 +90,9 @@ def similarity_matrix(matrix, k=5, axis=0):
             sim_matrix[i,j]=cosine
             sim_matrix[j,i]=cosine
 
-    if axis==1:
-        print(f"First 5 rows and column of the similarity matrix:")
-        print(sim_matrix[:5,:5])
+
+    #print(f"First 5 rows and column of the similarity matrix:")
+    #print(sim_matrix[:5,:5])
 
 
     # TO DO: sort the similarity scores for each entity and add the top k most 
@@ -142,12 +147,13 @@ def user_based_cf(user_id, movie_id, user_similarity, user_item_matrix, k=5):
     numpy_user_item_matrix=np.array(user_item_matrix)
     user_rating=numpy_user_item_matrix[similar_users, movie_id]
 
-    print(f"CF User-User: User ID:{user_id}, Movie ID: {movie_id}")
-    print(user_similarity[user_id])
-    print(similar_users)
-    print(cosine_similarity)
-    print(f"The rating for the movie {movie_id} for the users mentioned are respectively:")
-    print(user_rating)
+    if CF_user_user_text==True:
+        print(f"CF User-User: User ID:{user_id}, Movie ID: {movie_id}")
+        print(user_similarity[user_id])
+        print(similar_users)
+        print(cosine_similarity)
+        print(f"The rating for the movie {movie_id} for the users mentioned are respectively:")
+        print(user_rating)
     # TO DO: implement user-based collaborative filtering according to the 
     # formula discussed during the lecture (reported in the PDF attached to 
     # the assignment)
@@ -160,8 +166,10 @@ def user_based_cf(user_id, movie_id, user_similarity, user_item_matrix, k=5):
         return np.nan  # no similar users or no valid ratings, NaN is returned.
 
     predicted_rating = numerator / denominator
-    print(f"\n The user {user_id}, rated the movie {movie_id} with a {user_item_matrix[user_id][movie_id]}")
-    print(f"The predicted output with CF user-user is: {predicted_rating}")
+
+    if CF_user_user_text==True:
+        print(f"\n The user {user_id}, rated the movie {movie_id} with a                      {user_item_matrix[user_id][movie_id]}")
+        print(f"The predicted output with CF user-user is:            {predicted_rating}\n")
     return predicted_rating
 
 
@@ -186,19 +194,36 @@ def item_based_cf(user_id, movie_id, item_similarity, user_item_matrix, k=5):
         collaborative filtering
     """
     # TO DO: retrieve the topk most similar users for the target item
+    similar_items=np.array([pair[0] for pair in item_similarity[user_id]])
+    cosine_similarity=np.array([pair[1] for pair in item_similarity[user_id]])
 
+    numpy_user_item_matrix=np.array(user_item_matrix)
+    item_rating=numpy_user_item_matrix[user_id, similar_items]
+
+    if CF_item_item_text==True:
+        print(f"CF item-item: User ID:{user_id}, Movie ID: {movie_id}")
+        print(item_similarity[movie_id])
+        print(similar_items)
+        print(cosine_similarity)
+        print(f"The rating for the user {user_id} gave to the movie mentioned are respectively:")
+        print(item_rating)
 
     # TO DO: implement item-based collaborative filtering according to the 
     # formula discussed during the lecture (reported in the PDF attached to 
     # the assignment)
-    numerator = 0  
-    denominator = 0  
+    mask=np.logical_not(np.isnan(item_rating))
+    numerator = cosine_similarity[mask]@item_rating[mask]
+    denominator =np.sum(cosine_similarity[mask]) 
 
 
     if denominator == 0:
         return np.nan  # no similar users or no valid ratings, NaN is returned.
 
     predicted_rating = numerator / denominator
+
+    if CF_user_user_text==True:
+        print(f"\n The user {user_id}, rated the movie {movie_id} with a                      {user_item_matrix[user_id][movie_id]}")
+        print(f"The predicted output with CF user-user is:            {predicted_rating}\n")
 
     return predicted_rating
 
@@ -240,7 +265,7 @@ def matrix_factorization(
 
 
 M = np.array([
-    [2., 2., np.nan, 1., 4., 1., 3., 4., 5., 3.],
+    [2., 2., np.nan, 1., 4., 1., np.nan, 4., 5., np.nan],
     [np.nan, 3., 5., 3., np.nan, 5., 5., 4., 4., 2.],
     [5., 1., np.nan, np.nan, np.nan, np.nan, np.nan, 3., 2., 3.],
     [5., np.nan, 2., 4., 5., 4., 3., 3., np.nan, 4.],

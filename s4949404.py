@@ -52,7 +52,8 @@ def similarity_matrix(matrix, k=5, axis=0):
 
     # TO DO: loop through each couple of entities to calculate their cosine 
     # similarity and store these results
-    print("Computing the similarity matrix")
+    print(f"The data is a matrix {data.shape}")
+    print(f"Computing the similarity matrix:")
     
     sim_matrix=np.empty([data.shape[0], data.shape[0]])   #initialize a matrix of similarity between users
 
@@ -84,8 +85,9 @@ def similarity_matrix(matrix, k=5, axis=0):
             sim_matrix[i,j]=cosine
             sim_matrix[j,i]=cosine
 
-    print(f"First 5 rows and column of the similarity matrix:")
-    print(sim_matrix[:5,:5])
+    if axis==1:
+        print(f"First 5 rows and column of the similarity matrix:")
+        print(sim_matrix[:5,:5])
 
 
     # TO DO: sort the similarity scores for each entity and add the top k most 
@@ -106,8 +108,9 @@ def similarity_matrix(matrix, k=5, axis=0):
 
         similarity_dict[user] = ntuple
 
-    print("For user 0 we got:")
-    print(similarity_dict[0])
+    if axis==1:
+        print("For user 0 we got:")
+        print(similarity_dict[0])
 
     return similarity_dict
 
@@ -133,21 +136,34 @@ def user_based_cf(user_id, movie_id, user_similarity, user_item_matrix, k=5):
         collaborative filtering
     """
     # TO DO: retrieve the topk most similar users for the target user
+    similar_users=np.array([pair[0] for pair in user_similarity[user_id]])
+    cosine_similarity=np.array([pair[1] for pair in user_similarity[user_id]])
 
+    numpy_user_item_matrix=np.array(user_item_matrix)
+    user_rating=numpy_user_item_matrix[similar_users, movie_id]
 
+    print(f"CF User-User: User ID:{user_id}, Movie ID: {movie_id}")
+    print(user_similarity[user_id])
+    print(similar_users)
+    print(cosine_similarity)
+    print(f"The rating for the movie {movie_id} for the users mentioned are respectively:")
+    print(user_rating)
     # TO DO: implement user-based collaborative filtering according to the 
     # formula discussed during the lecture (reported in the PDF attached to 
     # the assignment)
-    numerator = 0  
-    denominator = 0  
+    mask=np.logical_not(np.isnan(user_rating))
+    numerator = cosine_similarity[mask]@user_rating[mask]
+    denominator =np.sum(cosine_similarity[mask])
 
 
     if denominator == 0:
         return np.nan  # no similar users or no valid ratings, NaN is returned.
 
     predicted_rating = numerator / denominator
-
+    print(f"\n The user {user_id}, rated the movie {movie_id} with a {user_item_matrix[user_id][movie_id]}")
+    print(f"The predicted output with CF user-user is: {predicted_rating}")
     return predicted_rating
+
 
 
 def item_based_cf(user_id, movie_id, item_similarity, user_item_matrix, k=5):
@@ -226,14 +242,14 @@ def matrix_factorization(
 M = np.array([
     [2., 2., np.nan, 1., 4., 1., 3., 4., 5., 3.],
     [np.nan, 3., 5., 3., np.nan, 5., 5., 4., 4., 2.],
-    [5., 1., 2., 2., 1., 1., 1., 3., 2., 3.],
-    [5., 5., 2., 4., 5., 4., 3., 3., 2., 4.],
+    [5., 1., np.nan, np.nan, np.nan, np.nan, np.nan, 3., 2., 3.],
+    [5., np.nan, 2., 4., 5., 4., 3., 3., np.nan, 4.],
     [1., 3., 5., 5., 4., np.nan, 5., np.nan, 5., 4.],
-    [5., np.nan, 2., 1., 3., 3., 1., 4., 4., 3.],
-    [3., 5., 5., np.nan, 2., 4., 4., np.nan, 4., 5.],
-    [4., 1., 3., 3., 2., 1., 1., 5., 1., np.nan],
-    [3., 1., 4., 4., 4., 2., 3., 5., 3., np.nan],
-    [5., 3., 3., 4., 2., 4., 2., 2., 3., 4.]
+    [np.nan, np.nan, 2., 1., 3., 3., 1., 4., 4., 3.],
+    [3., 5., 5., np.nan, 2., 4., np.nan, np.nan, 4., 5.],
+    [np.nan, 1., 3., 3., 2., 1., 1., 5., 1., np.nan],
+    [3., 1., np.nan, 4., 4., np.nan, 3., 5., 3., np.nan],
+    [5., np.nan, np.nan, 4., 2., np.nan, 2., 2., 3., 4.]
 ])
 
 
@@ -250,25 +266,25 @@ if __name__ == "__main__":
 
     # You can use this section for testing the similarity_matrix function: 
     # Return the top 5 most similar users to user 3:
-    user_similarity_matrix = similarity_matrix(df, k=5, axis=0)
-    print(user_similarity_matrix.get(3,[]))
+    user_similarity_matrix = similarity_matrix(M, k=5, axis=0)
+    #print(user_similarity_matrix.get(3,[]))
 
     # Return the top 5 most similar items to item 10:
-    item_similarity_matrix = similarity_matrix(df, k=5, axis=1)
-    print(item_similarity_matrix.get(10,[]))
+    item_similarity_matrix = similarity_matrix(M, k=5, axis=1)
+    #print(item_similarity_matrix.get(10,[]))
 
     
     # You can use this section for testing the user_based_cf and the 
     # item_based_cf functions: Return the predicted ratings assigned by user 
     # 13 to movie 100:
-    user_id = 13  
-    movie_id = 100  
+    user_id = 0  
+    movie_id = 0 
 
     u_predicted_rating = user_based_cf(
         user_id, 
         movie_id, 
         user_similarity_matrix, 
-        user_item_matrix = df,
+        user_item_matrix = M,
         k=5
     )
     print(
@@ -281,7 +297,7 @@ if __name__ == "__main__":
         user_id,
         movie_id, 
         item_similarity_matrix,
-        user_item_matrix = df, 
+        user_item_matrix = M, 
         k=5
     )
     print(

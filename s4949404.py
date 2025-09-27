@@ -256,10 +256,25 @@ def matrix_factorization(
 
     user_matrix = np.random.rand(utility_matrix.shape[0], feature_dimension)
     item_matrix = np.random.rand(utility_matrix.shape[1], feature_dimension)
+    err_user_matrix=np.zeros(user_matrix.shape)
+    err_item_matrix=np.zeros(item_matrix.shape)
+    err_utility_matrix=np.zeros(utility_matrix.shape)
+    mask=np.logical_not(np.isnan(utility_matrix))
+    confront_err_utility=np.zeros(err_utility_matrix.shape)
 
-    for step in range(n_steps):
-        # TODO: Implement the algorithm to update user_matrix and item_matrix
-        pass
+    for step in tqdm(range(n_steps)):
+        err_utility_matrix[mask] = (utility_matrix - user_matrix @ item_matrix.T)[mask]
+        err_user_matrix = err_utility_matrix @ item_matrix
+        err_item_matrix = (user_matrix.T @ err_utility_matrix).T
+
+
+        user_matrix+=learning_rate*(err_user_matrix - regularization*user_matrix)
+        item_matrix+=learning_rate*(err_item_matrix - regularization*item_matrix)
+
+        if step%500==0:
+            print(f"At step {step}, the ''accuracy'' of the utility matrix is: \n {np.sum((err_utility_matrix)**2)/utility_matrix.size}")
+
+
 
     return user_matrix, item_matrix
 

@@ -324,7 +324,7 @@ if __name__ == "__main__":
         user_id, 
         movie_id, 
         user_similarity_matrix, 
-        user_item_matrix = M,
+        user_item_matrix = df,
         k=5
     )
     print(
@@ -337,7 +337,7 @@ if __name__ == "__main__":
         user_id,
         movie_id, 
         item_similarity_matrix,
-        user_item_matrix = M, 
+        user_item_matrix = df, 
         k=5
     )
     print(

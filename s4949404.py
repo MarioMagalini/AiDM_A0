@@ -194,8 +194,8 @@ def item_based_cf(user_id, movie_id, item_similarity, user_item_matrix, k=5):
         collaborative filtering
     """
     # TO DO: retrieve the topk most similar users for the target item
-    similar_items=np.array([pair[0] for pair in item_similarity[user_id]])
-    cosine_similarity=np.array([pair[1] for pair in item_similarity[user_id]])
+    similar_items=np.array([pair[0] for pair in item_similarity[movie_id]])
+    cosine_similarity=np.array([pair[1] for pair in item_similarity[movie_id]])
 
     numpy_user_item_matrix=np.array(user_item_matrix)
     item_rating=numpy_user_item_matrix[user_id, similar_items]

@@ -306,19 +306,19 @@ if __name__ == "__main__":
 
     # You can use this section for testing the similarity_matrix function: 
     # Return the top 5 most similar users to user 3:
-    user_similarity_matrix = similarity_matrix(M, k=5, axis=0)
+    user_similarity_matrix = similarity_matrix(df, k=5, axis=0)
     #print(user_similarity_matrix.get(3,[]))
 
     # Return the top 5 most similar items to item 10:
-    item_similarity_matrix = similarity_matrix(M, k=5, axis=1)
+    item_similarity_matrix = similarity_matrix(df, k=5, axis=1)
     #print(item_similarity_matrix.get(10,[]))
 
     
     # You can use this section for testing the user_based_cf and the 
     # item_based_cf functions: Return the predicted ratings assigned by user 
     # 13 to movie 100:
-    user_id = 0  
-    movie_id = 0 
+    user_id = 13  
+    movie_id = 100 
 
     u_predicted_rating = user_based_cf(
         user_id, 

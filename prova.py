@@ -62,33 +62,27 @@ def similarity_matrix(matrix, k=5, axis=0):
     
     sim_matrix=np.empty([data.shape[0], data.shape[0]])   #initialize a matrix of similarity between users
 
-    for (i,j) in tqdm(np.ndindex(sim_matrix.shape), total=sim_matrix.size):       #computate similarity matrix          
-        if i==j:                                               #nan value on the diagonal
-            sim_matrix[i,j]=0
-        elif i<j:
-            A,B=[], []                               #initialize vector that collect values only when both user rate something
-            A_big, B_big=[],[]                         #initialize vector that collect all the rating of the user (to normalize later)
-            for l in range(data.shape[1]):          
-                if not nan_mask[i,l] and not nan_mask[j,l]:   #check both user rated the same item
-                    A.append(data[i,l])
-                    B.append(data[j,l])
-                if not nan_mask[i,l]:
-                    A_big.append(data[i,l])
-                if not nan_mask[j,l]:
-                    B_big.append(data[j,l])
-            
-            #####   Now we compute cosine similarity
-            cosine=0
-            if A and B:
-                A,B=np.array(A),np.array(B)
-                coord=np.dot(A,B)
-                norm_A=np.linalg.norm(A_big)
-                norm_B=np.linalg.norm(B_big)
-            
-                if norm_A!=0 and norm_B!=0:
-                    cosine=coord/(norm_A*norm_B)
+    for i,row in enumerate(data): 
+        for j in range(i):
+            mask = ~nan_mask[i, :] & ~nan_mask[j, :]   # both A and B have non-NaN values
+            mask_a=~nan_mask[i, :]                      #only one has non-NaN value at time
+            mask_b=~nan_mask[j, :]
+
+            A = data[i, mask]   #A,B for the dot product
+            B = data[j, mask]   
+
+            dot_prod=data[i,mask] @ data[j,mask].T
+            A_norm=np.linalg.norm(data[i,mask_a])
+            B_norm=np.linalg.norm(data[j,mask_b])
+
+            if np.isnan(A_norm*B_norm):
+                cosine=0
+            else:
+                cosine=dot_prod/(A_norm*B_norm)
             sim_matrix[i,j]=cosine
             sim_matrix[j,i]=cosine
+            sim_matrix[i,i]=0
+
 
 
     #print(f"First 5 rows and column of the similarity matrix:")

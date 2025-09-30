@@ -21,7 +21,7 @@ def create_hash_functions(num_hash_functions, size_bit_array):
         # note that this should be a unique hash function for all
 
         # BEGIN IMPLEMENTATION
-
+        pass
         # END IMPLEMENTATION
 
     return hash_functions

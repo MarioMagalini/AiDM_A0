@@ -76,20 +76,23 @@ def similarity_matrix(matrix, k=5, axis=0):
 
     # TO DO: sort the similarity scores for each entity and add the top k most 
     # similar entities to the similarity_dict
-    similarity_dict={i:[] for i in range(len(sim_matrix))}
+    index = matrix.index if axis==0 else matrix.columns
+    similarity_dict={key:[] for key in index}
 
-    for user, similarity in enumerate(sim_matrix):  
+    for pos, key in enumerate(index):
+        similarity=sim_matrix[pos]
+        order=np.argsort(similarity)[::-1]
+        
         similarity_mask=[]
         ntuple=[]
         
         similarity_mask = np.logical_not(np.isnan(similarity))
-        orderer=np.argsort(similarity)[::-1]
-        
-        for idx in orderer:
+    
+        for idx in order:
             if similarity_mask[idx] and len(ntuple) < k:
-                ntuple.append((int(idx),float(similarity[idx])))
+                ntuple.append((index[idx],float(similarity[idx])))
 
-        similarity_dict[user] = ntuple
+        similarity_dict[key] = ntuple
 
     return similarity_dict
 

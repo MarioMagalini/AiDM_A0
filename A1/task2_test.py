@@ -22,7 +22,7 @@ def create_hash_functions(num_hash_functions, size_bit_array):
 
         # BEGIN IMPLEMENTATION
         #I created f because it is more clear, i use the same structure on lambda
-        def f(x, i=i):
+        """def f(x, i=i):
             #different input (with some randomness)
             input=str(i*size_bit_array%519) + x
 
@@ -39,7 +39,7 @@ def create_hash_functions(num_hash_functions, size_bit_array):
             reduced_in=int_in%size_bit_array
 
             return reduced_in
-
+"""
         func=lambda x, i=i: int.from_bytes(
             sha256((str(i*size_bit_array%519) + x).encode()).digest(), 
                 "big"
@@ -64,7 +64,9 @@ def add_to_bloom_filter(bloom_filter, hash_functions, bank_account):
     """
 
     # BEGIN IMPLEMENTATION
-
+    for f in hash_functions:
+        index=f(bank_account)
+        bloom_filter[index]=1
     # END IMPLEMENTATION
 
     return bloom_filter
@@ -82,10 +84,14 @@ def check_bloom_filter(bloom_filter, hash_functions, bank_account):
     """
 
     # BEGIN IMPLEMENTATION
+    check_index=[]
+    for f in hash_functions:
+        index=f(bank_account)
+        check_index.append(index)
 
+    return all(bloom_filter[idx]==1 for idx in check_index)
     # END IMPLEMENTATION
 
-    return True
 
 if __name__ == "__main__":
     # This section can be used to debug your submission
@@ -98,7 +104,7 @@ if __name__ == "__main__":
     # Set up the Bloom filter as an array 8 times as big as the number of bank accounts
     bloom_filter = [0] * 8*nr_bank_accounts
     # Experiment with 2 hash functions (try raising it to 30)
-    hash_functions = create_hash_functions(2, 8*nr_bank_accounts)
+    hash_functions = create_hash_functions(5, 8*nr_bank_accounts)
     # Enter all valid account numbers
     for account in real_bank_accounts:
         add_to_bloom_filter(bloom_filter, hash_functions, account)

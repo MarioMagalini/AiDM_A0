@@ -21,7 +21,31 @@ def create_hash_functions(num_hash_functions, size_bit_array):
         # note that this should be a unique hash function for all
 
         # BEGIN IMPLEMENTATION
-        pass
+        #I created f because it is more clear, i use the same structure on lambda
+        def f(x, i=i):
+            #different input (with some randomness)
+            input=str(i*size_bit_array%519) + x
+
+            #input in byte 
+            byte_in=input.encode()
+
+            #hash_256 in byte
+            hash_in=sha256(byte_in).digest()
+
+            #hash into a big int
+            int_in=int.from_bytes(hash_in, "big")
+
+            #reducing it to the size of bit array
+            reduced_in=int_in%size_bit_array
+
+            return reduced_in
+
+        func=lambda x, i=i: int.from_bytes(
+            sha256((str(i*size_bit_array%519) + x).encode()).digest(), 
+                "big"
+            )%size_bit_array
+        
+        hash_functions.append(func)
         # END IMPLEMENTATION
 
     return hash_functions

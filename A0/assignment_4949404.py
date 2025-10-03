@@ -76,7 +76,7 @@ def similarity_matrix(matrix, k=5, axis=0):
 
     # TO DO: sort the similarity scores for each entity and add the top k most 
     # similar entities to the similarity_dict
-    similarity_dict={i:[] for i in range(len(sim_matrix))}
+    similarity_dict={i+1:[] for i in range(len(sim_matrix))}
 
     for user, similarity in enumerate(sim_matrix):  
         similarity_mask=[]
@@ -87,7 +87,7 @@ def similarity_matrix(matrix, k=5, axis=0):
         
         for idx in orderer:
             if similarity_mask[idx] and len(ntuple) < k:
-                ntuple.append((int(idx),float(similarity[idx])))
+                ntuple.append((int(idx+1),float(similarity[idx])))
 
         similarity_dict[user] = ntuple
 
@@ -115,7 +115,7 @@ def user_based_cf(user_id, movie_id, user_similarity, user_item_matrix, k=5):
         collaborative filtering
     """
     # TO DO: retrieve the topk most similar users for the target user
-    similar_users=np.array([pair[0] for pair in user_similarity[user_id]])
+    similar_users=np.array([pair[0]-1 for pair in user_similarity[user_id]])
     cosine_similarity=np.array([pair[1] for pair in user_similarity[user_id]])
 
     numpy_user_item_matrix=np.array(user_item_matrix)
@@ -158,7 +158,7 @@ def item_based_cf(user_id, movie_id, item_similarity, user_item_matrix, k=5):
         collaborative filtering
     """
     # TO DO: retrieve the topk most similar users for the target item
-    similar_items=np.array([pair[0] for pair in item_similarity[movie_id]])
+    similar_items=np.array([pair[0]-1 for pair in item_similarity[movie_id]])
     cosine_similarity=np.array([pair[1] for pair in item_similarity[movie_id]])
 
     numpy_user_item_matrix=np.array(user_item_matrix)
@@ -240,17 +240,17 @@ if __name__ == "__main__":
     # You can use this section for testing the similarity_matrix function: 
     # Return the top 5 most similar users to user 3:
     user_similarity_matrix = similarity_matrix(df, k=5, axis=0)
-    print(user_similarity_matrix.get(3,[]))
+    print(user_similarity_matrix.get(1,[]))
 
     # Return the top 5 most similar items to item 10:
     item_similarity_matrix = similarity_matrix(df, k=5, axis=1)
-    print(item_similarity_matrix.get(10,[]))
+    print(item_similarity_matrix.get(100,[]))
 
     
     # You can use this section for testing the user_based_cf and the 
     # item_based_cf functions: Return the predicted ratings assigned by user 
     # 13 to movie 100:
-    user_id = 13  
+    user_id = 1  
     movie_id = 100  
 
     u_predicted_rating = user_based_cf(

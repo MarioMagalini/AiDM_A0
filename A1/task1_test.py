@@ -1,5 +1,6 @@
 # No external libraries are allowed to be imported in this file
 import random
+import numpy as np
 
 def mock_datastream():
     """This function is a mock datastream generator. It yields transactions one by one.
@@ -9,8 +10,10 @@ def mock_datastream():
     Yields:
         transactions: A transaction from the datastream
     """
-    for _ in range(10_000):
-        yield random.gauss(10, 100) * (1 + 0.0005)
+    mu = 10
+    for t in range(10_000):
+        mu = 10 + 0.001 * t   # drift progressivo della media
+        yield random.gauss(mu, 100)
 
 def reservoir_sampling(k, datastream):
     """This function should contain the code for the reservoir sampling algorithm.
@@ -46,11 +49,17 @@ def reservoir_sampling(k, datastream):
 
         elif x<p:
             sample[isaac]=transaction
+        
+    print(f"\n{np.mean(sample)}")
         # END IMPLEMENTATION
 
-    return sample
+    return sample, np.mean(sample)
 
 if __name__ == "__main__":
     # You can use this main section for testing the reservoir_sampling function
-    sample = reservoir_sampling(5000, mock_datastream)
-    print(sample)
+    test=[]
+    for _ in range (100):
+        sample, mean = reservoir_sampling(5000, mock_datastream)
+        test.append(mean)
+    #print(sample)
+    print(f"In 100 sample, the average mean is: \n{np.mean(mean)}")

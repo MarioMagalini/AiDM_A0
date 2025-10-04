@@ -24,7 +24,8 @@ class FlajoletMartin:
         trailing_zeros_count = 0
 
         # BEGIN IMPLEMENTATION
-
+        binary = format(x, 'b')
+        trailing_zeros_count = len(binary) - len(binary.rstrip('0'))
         # END IMPLEMENTATION
 
         return trailing_zeros_count
@@ -38,7 +39,10 @@ class FlajoletMartin:
             #       Update the maximum trailing zero value of the current hash function
 
             # BEGIN IMPLEMENTATION
-
+            x=self.hash_function(item,i)
+            current_trailing_zeros=self.count_trailing_zeros(x)
+            if self.max_trailing_zeros[i]<current_trailing_zeros:
+                self.max_trailing_zeros[i]=current_trailing_zeros
             # END IMPLEMENTATION
 
 

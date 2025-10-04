@@ -56,8 +56,8 @@ def reservoir_sampling(k, datastream):
 if __name__ == "__main__":
     # You can use this main section for testing the reservoir_sampling function
     test=[]
-    for _ in range (100):
+    for _ in range (50):
         sample, mean = reservoir_sampling(5000, mock_datastream)
         test.append(mean)
     #print(sample)
-    print(f"In 100 sample, the average mean is: \n{np.mean(mean)}")
+    print(f"In 1000 sample, the average mean is: \n{np.mean(mean)}")

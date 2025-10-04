@@ -1,4 +1,4 @@
-# No external libraries are allowed to be imported in this file
+# No external libraries are allowed to be imported in this file 
 import random
 
 def mock_datastream():
@@ -32,7 +32,20 @@ def reservoir_sampling(k, datastream):
         # Note that the sample array size should not exceed k
 
         # BEGIN IMPLEMENTATION
+        p=k/(index+1)
+        x=random.random()
+        isaac=random.randint(0,k-1)      
+        
+        if index<k:
+            sample.append(transaction)
+         
+        #Genesis 22:9-10
+        #   When they came to the place of which God had told him, Abraham built the altar there 
+        #  and laid the wood in order and bound Isaac his son and laid him on the altar, on top of the wood. 
+        #  Then Abraham reached out his hand and took the knife to slaughter his son.
 
+        elif x<p:
+            sample[isaac]=transaction
         # END IMPLEMENTATION
 
     return sample
